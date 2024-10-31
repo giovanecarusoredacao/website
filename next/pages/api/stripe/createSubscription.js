@@ -2,11 +2,15 @@ import axios from "axios";
 
 const API_URL= `${process.env.NEXT_PUBLIC_API_URL}/api/v1/graphql`
 
-async function createSubscription({id, coupon,  token}) {
+async function createSubscription({id, coupon, token, locale}) {
   const query = coupon !== "" ?
     `
       mutation {
-        createStripeSubscription (priceId: ${id}, coupon: "${coupon}") {
+        createStripeSubscription (
+          priceId: ${id}, 
+          coupon: "${coupon}",
+          locale: "${locale}"
+        ) {
           clientSecret
         }
       }
@@ -14,7 +18,10 @@ async function createSubscription({id, coupon,  token}) {
   :
     `
       mutation {
-        createStripeSubscription (priceId: ${id}) {
+        createStripeSubscription (
+          priceId: ${id},
+          locale: "${locale}"
+        ) {
           clientSecret
         }
       }
@@ -44,7 +51,8 @@ export default async function handler(req, res) {
   const result = await createSubscription({
     id: atob(req.query.p),
     coupon: atob(req.query.c),
-    token: token
+    token: token,
+    locale: req.query.locale || 'pt' // Default to Portuguese if not specified
   })
 
   if(result.errors) return res.status(500).json({error: result.errors})

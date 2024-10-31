@@ -15,6 +15,7 @@ import {
 import Button from "../atoms/RoundedButton";
 import styles from "../../styles/paymentSystem.module.css";
 import { useTranslation } from 'next-i18next';
+import { useRouter } from 'next/router';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_KEY_STRIPE)
 
@@ -87,6 +88,7 @@ const PaymentForm = ({ onSucess, onErro, clientSecret}) => {
 }
 
 export default function PaymentSystem({ userData, plan, coupon, onSucess, onErro }) {
+  const router = useRouter();
   const [clientSecret, setClientSecret] = useState("")
 
   const appearance = {
@@ -147,7 +149,7 @@ export default function PaymentSystem({ userData, plan, coupon, onSucess, onErro
   }
 
   const customerCreatPost = async (id, coupon) => {
-    const clientSecret = await fetch(`/api/stripe/createSubscription?p=${btoa(id)}&c=${btoa(coupon)}`, {method: "GET"})
+    const clientSecret = await fetch(`/api/stripe/createSubscription?p=${btoa(id)}&c=${btoa(coupon)}&locale=${router.locale}`, {method: "GET"})
       .then(res => res.json())
 
     if (clientSecret) {
